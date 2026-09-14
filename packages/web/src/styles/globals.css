@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink-50 font-sans text-ink-900 antialiased;
+  }
+
+  /* Foco visível e acessível em todos os elementos interativos. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold-500 ring-offset-2;
+  }
+
+  /* Área do convite usa fundo creme e tipografia serifada. */
+  .invite-theme {
+    @apply bg-wedding-gradient font-display text-wedding-900;
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------- */
+  /* Botões                                                            */
+  /* ---------------------------------------------------------------- */
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-medium transition-all duration-200
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-ink-900 text-white shadow-soft hover:bg-ink-800 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply btn border-ink-200 bg-white text-ink-700 shadow-soft
+           hover:border-ink-300 hover:bg-ink-50 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn text-ink-600 hover:bg-ink-100 hover:text-ink-900;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger-600 text-white shadow-soft hover:bg-danger-700 active:scale-[0.98];
+  }
+
+  .btn-success {
+    @apply btn bg-success-600 text-white shadow-soft hover:bg-success-700 active:scale-[0.98];
+  }
+
+  /* Botão do convite: dourado, arredondado, elegante. */
+  .btn-invite {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-full
+           bg-wedding-700 px-8 py-3.5 font-display text-base tracking-wide text-white
+           shadow-invite transition-all duration-300
+           hover:bg-wedding-800 hover:shadow-elevated active:scale-[0.98]
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-invite-outline {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-full
+           border-wedding-300 bg-white/70 px-8 py-3.5 font-display text-base
+           tracking-wide text-wedding-800 backdrop-blur transition-all duration-300
+           hover:border-wedding-400 hover:bg-white active:scale-[0.98];
+  }
+
+  /* Botões grandes para uso no celular na portaria. */
+  .btn-touch {
+    @apply min-h-[56px] rounded-2xl px-6 text-base font-semibold;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Cards                                                             */
+  /* ---------------------------------------------------------------- */
+  .card {
+    @apply rounded-2xl border-ink-100 bg-white shadow-soft;
+  }
+
+  .card-invite {
+    @apply rounded-3xl border-wedding-200 bg-white/80 shadow-invite backdrop-blur-sm;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Formulários                                                       */
+  /* ---------------------------------------------------------------- */
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink-700;
+  }
+
+  .input {
+    @apply w-full rounded-xl border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
+           placeholder:text-ink-400 transition-colors
+           focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-ink-900/10
+           disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400;
+  }
+
+  .input-error {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500/20;
+  }
+
+  .input-invite {
+    @apply w-full rounded-xl border-wedding-200 bg-white/90 px-4 py-3 font-display text-base
+           text-wedding-900 placeholder:text-wedding-400
+           focus:border-wedding-500 focus:outline-none focus:ring-2 focus:ring-wedding-500/20;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1 text-xs font-medium text-danger-600;
+  }
+
+  .helper {
+    @apply mt-1.5 text-xs text-ink-500;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Badges de status                                                  */
+  /* ---------------------------------------------------------------- */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
+           text-xs font-semibold leading-none;
+  }
+
+  .badge-neutral {
+    @apply badge bg-ink-100 text-ink-600;
+  }
+
+  .badge-success {
+    @apply badge bg-success-100 text-success-700;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-700;
+  }
+
+  .badge-danger {
+    @apply badge bg-danger-100 text-danger-700;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-700;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Tabela                                                            */
+  /* ---------------------------------------------------------------- */
+  .table-wrapper {
+    @apply w-full overflow-x-auto rounded-2xl border-ink-100 bg-white;
+  }
+
+  .table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+
+  .table thead th {
+    @apply whitespace-nowrap border-b border-ink-100 bg-ink-50/60 px-4 py-3
+           text-xs font-semibold uppercase tracking-wider text-ink-500;
+  }
+
+  .table tbody td {
+    @apply border-b border-ink-50 px-4 py-3 align-middle text-ink-700;
+  }
+
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table tbody tr {
+    @apply transition-colors hover:bg-ink-50/60;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Utilitários do convite                                            */
+  /* ---------------------------------------------------------------- */
+  .divider-gold {
+    @apply mx-auto h-px w-24 bg-gold-line;
+  }
+
+  .heading-invite {
+    @apply font-display text-4xl font-light leading-tight tracking-wide sm:text-5xl;
+  }
+
+  .label-invite {
+    @apply text-xs font-medium uppercase tracking-widest text-wedding-500;
+  }
+}
+
+@layer utilities {
+  /* Área segura para o notch em celulares. */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Esconde a barra de rolagem mantendo o scroll (usado em carrosséis). */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Esqueleto de carregamento com brilho. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-ink-100;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 animate-shimmer bg-gradient-to-r
+           from-transparent via-white/60 to-transparent;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Ajustes globais de impressão (QR Code do convidado)                  */
+/* ------------------------------------------------------------------ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    @apply bg-white;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

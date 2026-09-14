@@ -1,0 +1,8 @@
+/* Favicon do Celebrai — coração dourado sobre fundo escuro. */
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+ <rect width="64" height="64" rx="14" fill="#1e2532" />
+ <path
+    fill="#d4b483"
+    d="M32 48.5s-15.5-9.6-15.5-19.8A8.7 8.7 0 0 1 32 22.8a8.7 8.7 0 0 1 15.5 5.9C47.5 38.9 32 48.5 32 48.5Z"
+  />
+</svg>

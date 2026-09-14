@@ -1,0 +1,46 @@
+# ============================================================================
+# Contexto de build do Docker — o que NÃO é enviado ao daemon
+# Reduz o tamanho do contexto e evita vazar segredos para a imagem.
+# ============================================================================
+
+# Dependências (instaladas dentro da imagem)
+**/node_modules
+**/.pnpm-store
+
+# Builds locais
+**/dist
+**/build
+**/*.tsbuildinfo
+
+# Ambientes e segredos — NUNCA vão para a imagem
+.env
+.env.*
+!.env.example
+
+# Bancos locais de desenvolvimento
+**/*.db
+**/*.db-journal
+
+# Logs
+**/*.log
+logs/
+
+# Repositório e metadados
+.git
+.gitignore
+.github
+.vscode
+.idea
+*.md
+!README.md
+
+# Ferramentas locais e artefatos de QA
+tools
+**/coverage
+**/.vitest
+
+# Volumes e arquivos temporários
+**/uploads
+**/storage
+**/.DS_Store
+Thumbs.db

@@ -1,0 +1,31 @@
+# ============================================================================
+# Celebrai — override de DESENVOLVIMENTO
+#
+# Uso: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Sobe apenas o PostgreSQL e o MailHog (captura de e-mails). A API e o front
+# rodam direto na máquina com hot-reload (`npm run dev`), o que é mais rápido
+# para desenvolver.
+# ============================================================================
+services:
+  db:
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  # Captura e-mails de convite em desenvolvimento, sem enviar de verdade.
+  # Interface web em http://localhost:8025
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: celebrai-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  # Em desenvolvimento, a API roda fora do Docker (npm run dev:api).
+  api:
+    profiles: ["full"]
+
+  # Em desenvolvimento, o front roda fora do Docker (npm run dev:web).
+  web:
+    profiles: ["full"]

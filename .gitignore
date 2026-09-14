@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Builds
+dist/
+build/
+*.tsbuildinfo
+
+# Variáveis de ambiente — nunca versionadas.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Databases
+*.db
+*.db-journal
+packages/api/prisma/dev.db
+packages/api/prisma/dev.db-journal
+# Schema de desenvolvimento gerado por packages/api/scripts/set-provider.mjs
+packages/api/prisma/schema.dev.prisma
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Uploads
+packages/api/uploads/
+packages/api/storage/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+.nyc_output/

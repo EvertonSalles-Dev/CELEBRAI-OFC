@@ -1,0 +1,29 @@
+import { useEffect, useState } from 'react';
+
+/**
+ * Detecção de conexão.
+ *
+ * O check-in depende do servidor: o sistema NUNCA libera entrada sem validação
+ * remota. Quando a conexão cai, o operador é avisado imediatamente e as leituras
+ * ficam bloqueadas, evitando filas com decisões incorretas.
+ */
+export function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState<boolean>(
+    typeof navigator === 'undefined' ? true : navigator.onLine,
+  );
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return isOnline;
+}

@@ -1,0 +1,71 @@
+# ============================================================================
+# Celebrai — stack local completa (Postgres + API + Web)
+# Uso:  docker compose up --build
+# ============================================================================
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: celebrai-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-celebrai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-celebrai}
+      POSTGRES_DB: ${POSTGRES_DB:-celebrai}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - celebrai-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-celebrai} -d ${POSTGRES_DB:-celebrai}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    container_name: celebrai-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3333
+      DATABASE_PROVIDER: postgresql
+      DATABASE_URL: postgresql://${POSTGRES_USER:-celebrai}:${POSTGRES_PASSWORD:-celebrai}@db:5432/${POSTGRES_DB:-celebrai}?schema=public
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      API_URL: ${API_URL:-http://localhost:3333}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh}
+      INVITATION_TOKEN_SECRET: ${INVITATION_TOKEN_SECRET:-change-me-invite}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-7d}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://localhost:5173}
+      MAIL_DRIVER: ${MAIL_DRIVER:-disabled}
+      WHATSAPP_DRIVER: ${WHATSAPP_DRIVER:-disabled}
+      SEED_SUPER_ADMIN_EMAIL: ${SEED_SUPER_ADMIN_EMAIL:-super@celebrai.app}
+      SEED_SUPER_ADMIN_PASSWORD: ${SEED_SUPER_ADMIN_PASSWORD:-SuperAdmin@123}
+    ports:
+      - "3333:3333"
+    # Aplica as migrations pendentes e sobe o servidor.
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+      args:
+        # Vazio = o front chama a API pelo mesmo origin (proxy do Nginx).
+        VITE_API_URL: ${VITE_API_URL:-}
+    container_name: celebrai-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "8080:80"
+
+volumes:
+  celebrai-pgdata:
