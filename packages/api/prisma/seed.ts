@@ -56,9 +56,9 @@ function asStringList(values: string[]): string[] | string | null {
 }
 
 /** JSON: nativo no Postgres, texto em SQLite. */
-function asJson(value: unknown): unknown {
+function asJson(value: unknown): string | null {
   if (value === null || value === undefined) return null;
-  return IS_SQLITE ? JSON.stringify(value) : value;
+  return JSON.stringify(value);
 }
 
 async function main(): Promise<void> {
@@ -131,12 +131,12 @@ async function main(): Promise<void> {
       coupleNameA: 'João',
       coupleNameB: 'Maria',
       coverImageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200',
-      galleryImages: asStringList([
-        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800',
-        'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800',
-        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800',
-        'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800',
-      ]) as never,
+      galleryImages: JSON.stringify([
+        "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800",
+        "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800",
+        "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800",
+        "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800"
+      ]),
       welcomeMessage: 'Estamos muito felizes em compartilhar esse momento especial com você.',
       inviteMessage:
         'Será uma honra ter você ao nosso lado neste dia tão importante. Sua presença tornará tudo ainda mais especial.',
