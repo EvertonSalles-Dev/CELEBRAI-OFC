@@ -35,6 +35,13 @@ yarn-error.log*
 packages/api/uploads/
 packages/api/storage/
 
+# Pasta criada por engano por um comando malformado (ex.: create-next-app --template).
+# Tem ~400 MB de um projeto Next.js inteiro. Não faz parte do Celebrai.
+--template/
+
+# Logs da API gerados localmente
+packages/api/*.out.log
+packages/api/*.err.log
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json

@@ -66,6 +66,14 @@ const envSchema = z.object({
 
 export type AppEnv = z.infer<typeof envSchema>;
 
+/**
+ * Detecta execução em ambiente serverless (Vercel/Lambda). Nesses ambientes
+ * `process.exit` é proibido — ele aborta a invocação sem produzir resposta.
+ */
+export const isServerless = Boolean(
+  process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME,
+);
+
 function loadEnv(): AppEnv {
   const parsed = envSchema.safeParse(process.env);
 
@@ -73,8 +81,14 @@ function loadEnv(): AppEnv {
     const issues = parsed.error.issues
       .map((i) => `  • ${i.path.join('.') || '(root)'}: ${i.message}`)
       .join('\n');
+    const message = `[celebrai] Configuração de ambiente inválida:\n${issues}`;
     // eslint-disable-next-line no-console
-    console.error(`\n[celebrai] Configuração de ambiente inválida:\n${issues}\n`);
+    console.error(`\n${message}\n`);
+
+    // Em serverless (Vercel/Lambda) `process.exit` encerraria a invocação sem
+    // resposta HTTP — o cliente veria um timeout opaco. Lançar o erro entrega
+    // uma mensagem clara e deixa o handler converter em 500.
+    if (isServerless) throw new Error(message);
     process.exit(1);
   }
 
@@ -88,12 +102,13 @@ function loadEnv(): AppEnv {
     ].filter(([key, value]) => env[key as keyof AppEnv] === value);
 
     if (insecure.length > 0) {
+      const message = `[celebrai] Segredos padrão detectados em produção: ${insecure
+        .map(([k]) => k)
+        .join(', ')}. Defina valores fortes antes de subir.`;
       // eslint-disable-next-line no-console
-      console.error(
-        `\n[celebrai] Segredos padrão detectados em produção: ${insecure
-          .map(([k]) => k)
-          .join(', ')}. Defina valores fortes antes de subir.\n`,
-      );
+      console.error(`\n${message}\n`);
+
+      if (isServerless) throw new Error(message);
       process.exit(1);
     }
   }

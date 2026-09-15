@@ -225,23 +225,28 @@ derivado a partir do schema de produção:
 
 ```bash
 cd packages/api
-
 # Gera prisma/schema.dev.prisma (converte enums/arrays/Json para o SQLite)
+# e já ajusta DATABASE_PROVIDER / DATABASE_URL no .env
 node scripts/set-provider.mjs sqlite
-
-# .env
-#   DATABASE_URL="file:./dev.db"
-#   DATABASE_PROVIDER=sqlite
-
+# Regenera o Client para o provider SQLite (passo OBRIGATÓRIO)
 npx prisma db push --schema prisma/schema.dev.prisma
 npx prisma generate --schema prisma/schema.dev.prisma
 npm run db:seed
-
-# Para voltar ao PostgreSQL
+# Para voltar ao PostgreSQL (também reajusta o .env)
 node scripts/set-provider.mjs postgresql
+npx prisma generate
 ```
 
 > O schema de produção **nunca** é alterado por esse comando.
+
+> ⚠️ **`DATABASE_PROVIDER` e `DATABASE_URL` precisam estar de acordo com o
+> Prisma Client gerado.** Se `DATABASE_URL` apontar para `file:./dev.db` mas o
+> Client tiver sido gerado a partir do schema PostgreSQL, **toda** consulta
+> falha com
+> `Error validating datasource 'db': the URL must start with the protocol postgresql://`
+> e a API responde `500 INTERNAL_ERROR` em qualquer rota que toque o banco —
+> por exemplo `POST /api/auth/login`. Rode `npx prisma generate` com o schema do
+> provider correto e reinicie a API.
 
 ---
 
