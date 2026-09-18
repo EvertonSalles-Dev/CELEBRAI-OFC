@@ -67,7 +67,7 @@ if (provider !== 'sqlite') {
 if (!existsSync(sqliteSchema)) {
   console.warn(
     '[celebrai] bootstrap-db: DATABASE_PROVIDER=sqlite mas schema.dev.prisma não existe.\n' +
-      '          Rode: node scripts/set-provider.mjs sqlite',
+    '          Rode: node scripts/set-provider.mjs sqlite',
   );
   process.exit(0);
 }

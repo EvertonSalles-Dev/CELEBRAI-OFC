@@ -5,7 +5,7 @@ import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { resolve } from 'node:path';
-import { env, corsOrigins, isDev } from './config/env.js';
+import { env, corsOrigins, isDev, isOriginAllowed } from './config/env.js';
 import { logger } from './config/logger.js';
 import { disconnectPrisma } from './config/prisma.js';
 import authPlugin from './plugins/auth.plugin.js';
@@ -58,7 +58,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         callback(null, true);
         return;
       }
-      if (corsOrigins.includes(origin)) {
+      if (isOriginAllowed(origin)) {
         callback(null, true);
         return;
       }

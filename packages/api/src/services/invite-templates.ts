@@ -1,5 +1,5 @@
 import type { Event, Guest, Venue } from '@prisma/client';
-import { env } from '../config/env.js';
+import { appUrl } from '../config/env.js';
 import { formatLongDate, formatShortDate } from '../shared/datetime.js';
 
 /**
@@ -11,7 +11,7 @@ import { formatLongDate, formatShortDate } from '../shared/datetime.js';
 export type EventWithVenue = Event & { venue: Venue | null };
 
 export function buildInviteLink(token: string): string {
-  return `${env.APP_URL.replace(/\/$/, '')}/convite/${token}`;
+  return `${appUrl}/convite/${token}`;
 }
 
 export function eventDisplayName(event: Pick<Event, 'title' | 'hostsName'>): string {

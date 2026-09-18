@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { env } from '../config/env.js';
+import { appUrl, env } from '../config/env.js';
 import { authController } from '../controllers/auth.controller.js';
 import { eventController } from '../controllers/event.controller.js';
 import { guestController } from '../controllers/guest.controller.js';
@@ -34,7 +34,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       email: env.MAIL_DRIVER !== 'disabled',
       whatsapp: env.WHATSAPP_DRIVER !== 'disabled',
     },
-    appUrl: env.APP_URL,
+    appUrl,
   }));
 
   // -------------------------------------------------------------------------

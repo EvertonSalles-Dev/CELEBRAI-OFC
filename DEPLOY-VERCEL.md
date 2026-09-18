@@ -56,9 +56,46 @@ delas a função falha na inicialização.
 | `JWT_ACCESS_SECRET` | string aleatória ≥ 32 chars | **Não** use o valor de exemplo |
 | `JWT_REFRESH_SECRET` | outra string aleatória ≥ 32 chars | Diferente da de acesso |
 | `INVITATION_TOKEN_SECRET` | outra string aleatória ≥ 32 chars | Diferente das duas acima |
-| `APP_URL` | `https://seu-projeto.vercel.app` | Usada nos links de convite |
+| `APP_URL` | `https://seu-projeto.vercel.app` | Usada nos links de convite — use domínio **estável** (ver abaixo) |
 | `API_URL` | `https://seu-projeto.vercel.app` | |
 | `CORS_ORIGINS` | `https://seu-projeto.vercel.app` | Lista separada por vírgula |
+
+> ℹ️ As URLs de preview da Vercel (`…-<hash>-….vercel.app`) são liberadas
+> **automaticamente**: o código lê `VERCEL_URL` e `VERCEL_PROJECT_PRODUCTION_URL`,
+> que a própria Vercel injeta em cada deployment. Não é preciso atualizar
+> `CORS_ORIGINS` a cada push — e, como o formato de preview é um único label DNS
+> com hífens, um wildcard `*.dominio.com` **não** funcionaria.
+
+---
+
+## `APP_URL` nos links de convite (e o erro `404 DEPLOYMENT_NOT_FOUND`)
+
+O link entregue ao convidado é montado como `${APP_URL}/convite/<token>`
+(ver `buildInviteLink`). Se `APP_URL` for apontado para um **host de deployment
+efêmero** da Vercel — no formato `projeto-<hash>-….vercel.app` —, esse endereço
+deixa de existir no próximo deploy. O convite que o usa passa a responder:
+
+```
+This page doesn't exist
+404 DEPLOYMENT_NOT_FOUND
+```
+
+Isso **não é bug do código**: é o host morrendo. Por isso o código resolve a URL
+pública com `resolveAppUrl` (`packages/api/src/config/env.ts`), que:
+
+1. usa `APP_URL` quando ele é um domínio **estável** (ex.: `https://celebrai.com`);
+2. se `APP_URL` for efêmero, cai para `VERCEL_PROJECT_PRODUCTION_URL` — o domínio
+   estável de produção que a Vercel injeta (ex.: `https://seu-projeto.vercel.app`);
+3. sem nada disso (local), usa o `APP_URL` do `.env` (`http://localhost:5173`).
+
+Na prática: **sempre prefira um domínio estável em `APP_URL`** (domínio próprio, se
+tiver DNS apontado, ou o domínio `…vercel.app` do projeto). O fallback evita o
+`404` quando essa variável fica com um host de deployment, mas o correto é não
+depender dele. Convites **já enviados** com um host efêmero continuam quebrados —
+eles só podem ser regerados/reemviados.
+
+> Para conferir a URL que está sendo usada, acesse `GET /api/meta`: o campo
+> `appUrl` mostra o valor já resolvido.
 
 > ⚠️ O servidor **recusa iniciar** em produção se `JWT_ACCESS_SECRET`,
 > `JWT_REFRESH_SECRET` ou `INVITATION_TOKEN_SECRET` ainda tiverem os valores

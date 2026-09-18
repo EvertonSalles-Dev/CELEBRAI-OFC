@@ -1,0 +1,4 @@
+{
+  "//": "Este package.json existe APENAS para declarar o diretório como ESM. O package.json da raiz não tem `type: module`, então sem este arquivo a Vercel compila api/index.ts como CommonJS e o import de packages/api (que é ESM) vira require(), quebrando com ERR_REQUIRE_ESM.",
+  "type": "module"
+}

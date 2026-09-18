@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../config/prisma.js';
-import { env } from '../config/env.js';
+import { appUrl } from '../config/env.js';
 import {
   generateInvitationCode,
   generateInvitationToken,
@@ -48,9 +48,16 @@ function qrPrefixFromSlug(slug: string): string {
   return cleaned.slice(0, 8) || 'CELEBRAI';
 }
 
-/** Monta a URL pública do convite. */
+/**
+ * Monta a URL pública do convite.
+ *
+ * Usa `appUrl`, que resolve para o domínio **estável** do projeto mesmo quando
+ * `APP_URL` foi configurado com um host de deployment efêmero da Vercel (ver
+ * `resolveAppUrl` em config/env.ts) — caso contrário o convite morreria com
+ * `404 DEPLOYMENT_NOT_FOUND` no próximo deploy.
+ */
 export function buildInviteLink(token: string): string {
-  return `${env.APP_URL.replace(/\/$/, '')}/convite/${token}`;
+  return `${appUrl}/convite/${token}`;
 }
 
 export const invitationService = {

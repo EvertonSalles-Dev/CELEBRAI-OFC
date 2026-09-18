@@ -122,6 +122,87 @@ export const isProd = env.NODE_ENV === 'production';
 export const isDev = env.NODE_ENV === 'development';
 export const isTest = env.NODE_ENV === 'test';
 
-export const corsOrigins = env.CORS_ORIGINS.split(',')
-  .map((o) => o.trim())
-  .filter(Boolean);
+/**
+ * URL pública do frontend usada para montar os links de convite.
+ *
+ * O `APP_URL` continua tendo prioridade: em produção com domínio próprio
+ * (ex.: `https://celebrai.com`) é ele que deve definir o link entregue ao
+ * convidado. O fallback existe para o caso em que `APP_URL` ficou apontado
+ * para um domínio de **deployment efêmero** da Vercel
+ * (`projeto-<hash>-…vercel.app`): esse host deixa de existir no próximo push
+ * e o convite passa a responder `404 DEPLOYMENT_NOT_FOUND`.
+ *
+ * Ordem de resolução:
+ *  1. `APP_URL`, se for um domínio **estável** (não um host de deployment).
+ *  2. `VERCEL_PROJECT_PRODUCTION_URL` → domínio estável de produção, sempre
+ *     resolve para o deployment atual.
+ *  3. `APP_URL` como veio, ainda que efêmero (último recurso — mantém o
+ *     comportamento anterior em vez de quebrar).
+ *  4. `VERCEL_URL` (host deste deployment) quando não há mais nada.
+ *
+ * Em desenvolvimento/local, sem nenhuma variável da Vercel presente, o valor
+ * final é simplesmente o `APP_URL` do `.env` (`http://localhost:5173`).
+ */
+function resolveAppUrl(): string {
+  const configured = env.APP_URL.replace(/\/$/, '');
+
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const deploymentHost = process.env.VERCEL_URL;
+
+  const isEphemeral = (url: string): boolean =>
+    /-\w+-[a-z0-9-]+\.vercel\.app$/i.test(url) || /-[a-z0-9]{9,}-/i.test(url);
+
+  if (!isEphemeral(configured)) return configured;
+
+  if (productionHost) return `https://${productionHost}`;
+
+  return configured || (deploymentHost ? `https://${deploymentHost}` : configured);
+}
+
+/** URL pública resolvida do frontend — use esta para montar links de convite. */
+export const appUrl = resolveAppUrl();
+
+/**
+ * Origens permitidas pelo CORS.
+ *
+ * Além da lista de `CORS_ORIGINS`, incluímos automaticamente os domínios que a
+ * própria Vercel injeta em cada deployment:
+ *
+ *  - `VERCEL_URL`            → domínio único deste deployment
+ *                               (ex.: celebrai-ofc-api-22-faetnx71o-….vercel.app)
+ *  - `VERCEL_PROJECT_PRODUCTION_URL` → domínio estável de produção
+ *                               (ex.: celebrai-ofc-api-22.vercel.app)
+ *
+ * Sem isso o CORS quebra a cada deploy: como a URL de preview muda a cada push,
+ * uma lista fixa nunca casa e o login falha com "Origem não autorizada pelo
+ * CORS". As variáveis já são fornecidas pelo ambiente — não é preciso
+ * configurá-las no painel.
+ */
+function resolveCorsOrigins(): string[] {
+  const configured = env.CORS_ORIGINS.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  const vercelHosts = [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]
+    .filter((host): host is string => Boolean(host))
+    .map((host) => `https://${host}`);
+
+  return [...new Set([...configured, ...vercelHosts])];
+}
+
+export const corsOrigins = resolveCorsOrigins();
+
+/**
+ * Verifica se uma origem está autorizada.
+ *
+ * A comparação é exata contra `corsOrigins`. Não há suporte a wildcard porque
+ * as URLs de preview da Vercel **não** são subdomínios: o formato é
+ * `projeto-hash-time-projeto.vercel.app`, ou seja, um único label DNS com
+ * hífens. Um padrão `*.dominio.com` nunca casaria com elas.
+ *
+ * Essas URLs já são liberadas automaticamente via `VERCEL_URL` em
+ * `resolveCorsOrigins`, que é o mecanismo correto para o caso.
+ */
+export function isOriginAllowed(origin: string): boolean {
+  return corsOrigins.includes(origin);
+}
