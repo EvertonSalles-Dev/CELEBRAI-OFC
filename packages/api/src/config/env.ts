@@ -149,8 +149,26 @@ function resolveAppUrl(): string {
   const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   const deploymentHost = process.env.VERCEL_URL;
 
-  const isEphemeral = (url: string): boolean =>
-    /-\w+-[a-z0-9-]+\.vercel\.app$/i.test(url) || /-[a-z0-9]{9,}-/i.test(url);
+  /**
+   * Um host é "efêmero" quando carrega o hash do deployment
+   * (`<projeto>-<hash>-<time>.vercel.app`), que muda a cada push.
+   *
+   * O hash é um segmento **misto** (letras E dígitos, ex.: `7wv16812a`,
+   * `ilm2vr51a`). Exigir as duas naturezas evita falsos positivos em nomes de
+   * time (`evertonsalles-devs-projects` é só letras) e, principalmente, impede
+   * que o domínio estável do projeto (`celebrai-ofc-api-22.vercel.app`) seja
+   * tratado como efêmero — falha que fazia a resolução cair para o domínio de
+   * produção da Vercel, mesmo com o `APP_URL` correto.
+   */
+  const isEphemeral = (url: string): boolean => {
+    const host = url.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+    if (!host.endsWith('.vercel.app')) return false;
+    // Segmento entre hífens com letras & dígitos e tamanho de hash (>= 8).
+    const match = host.match(/-([a-z0-9]{8,})-[a-z0-9-]*\.vercel\.app$/);
+    if (!match) return false;
+    const segment = match[1] ?? '';
+    return /[a-z]/.test(segment) && /[0-9]/.test(segment);
+  };
 
   if (!isEphemeral(configured)) return configured;
 
